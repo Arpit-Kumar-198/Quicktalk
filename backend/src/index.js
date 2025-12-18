@@ -19,17 +19,29 @@ app.use(express.json());
 app.use(cookieParser());
 
 // CORS setup
-const allowedOrigin =
+const allowedOrigins =
   process.env.NODE_ENV === "production"
-    ? process.env.CLIENT_URL // Vercel frontend domain
-    : "http://localhost:5173"; // local frontend
+    ? [
+        "https://quick-talk-sage.vercel.app", // your main frontend
+        "https://quick-talk-git-main-arpit-kumars-projects-75e7cb12.vercel.app",
+        "https://quick-talk-bpqmm0c9i-arpit-kumars-projects-75e7cb12.vercel.app"
+      ]
+    : ["http://localhost:5173"]; // local frontend
 
 app.use(
   cors({
-    origin: allowedOrigin,
+    origin: (origin, callback) => {
+      // allow requests with no origin (like mobile apps or curl)
+      if (!origin || allowedOrigins.includes(origin)) {
+        callback(null, true);
+      } else {
+        callback(new Error("Not allowed by CORS"));
+      }
+    },
     credentials: true,
   })
 );
+
 
 // ---------- ROUTES ----------
 app.use("/api/auth", authRoutes);
